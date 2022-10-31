@@ -1,0 +1,65 @@
+---
+title: "lab1"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Задание 1
+
+## Загрузим csv в data frame:
+
+```{r}
+df <- read.csv('C:/studyR/data/lab1_e1.csv')
+```
+
+## Функция обработки:
+
+##### Для каждого значения смотрим, есть ли там буквы, и если нет, убираем пробелы и преобразуем в число:
+
+```{r}
+fix_data <- function(df) {
+  p = lapply(df,function(x) lapply(x, function(y) if (!grepl("[A-Za-z]", y)) {y <- as.double(gsub(" ", "", y))
+} else {y<-y} ))
+  dd  <-  as.data.frame(matrix(unlist(p), nrow=length(unlist(p[1]))))
+  return(dd)
+}
+```
+
+## Применим fix_data:
+```{r}
+fixed <-fix_data(df)
+print(fixed)
+```
+
+# Задание 2
+
+```{r}
+get_id <- function(df) {
+  # Находим среднее по температуре
+  frame_mean <- aggregate(temp ~ id, df, mean)
+  # Находим длину по дням
+  frame_length <- aggregate(temp ~ id, df, length)
+  names(frame_mean)[names(frame_mean) == 'temp'] <- 'mean_temp'
+  names(frame_length)[names(frame_length) == 'temp'] <- 'length'
+  # Выбираем подмножество тех, у которых длина по дням равна в точности семи
+  new_df <- subset(merge(frame_mean, frame_length, by = 'id'), length == 7, select = c('id', 'mean_temp'))
+  row.names(new_df) <- NULL
+  return(new_df)
+}
+
+```
+
+## Применяем get_id
+```{r}
+load('C:/studyR/data/lab1_e2.Rdata')
+df<-do.call("rbind", all_data) # в датафрейм
+new_df = get_id(df)
+
+print(new_df)
+```
+
+
+
